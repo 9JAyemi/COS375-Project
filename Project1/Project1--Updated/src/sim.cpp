@@ -58,7 +58,7 @@ enum FUNCT_IDS
     FUN_SUB = , // substract (sub)
     FUN_SUBU =  // substract unsigned (subu)
 };
-
+f
 // extract specific bits [start, end] from a 32 bit instruction
 uint extractBits(uint32_t instruction, int start, int end)
 {
