@@ -24,22 +24,22 @@ enum OP_IDS
     OP_ADDIU = 0x9, // addiu
     OP_ANDI = 0xc, // andi
     OP_BEQ = 0x4, // beq
-    OP_BNE = , // bne
-    OP_LBU = , // lbu
-    OP_LHU = , // lhu
-    OP_LUI = , // lui
-    OP_LW = , // lw
-    OP_ORI = , // ori
-    OP_SLTI = , // slti
-    OP_SLTIU = , // sltiu
-    OP_SB = , // sb
-    OP_SH = , // sh
-    OP_SW = , // sw
-    OP_BLEZ = , // blez
-    OP_BGTZ = , // bgtz
+    OP_BNE = 0x5, // bne
+    OP_LBU = 0x18, // lbu
+    OP_LHU = 0x19, // lhu
+    OP_LUI = 0xf, // lui
+    OP_LW = 0x17, // lw
+    OP_ORI = 0xd, // ori
+    OP_SLTI = 0xa, // slti
+    OP_SLTIU = 0xb, // sltiu
+    OP_SB = 0x1c, // sb
+    OP_SH = 0x1d, // sh
+    OP_SW = 0x2b, // sw
+    OP_BLEZ = 0x6, // blez
+    OP_BGTZ = 0x7, // bgtz
     //J-type opcodes...
-    OP_J = , // j
-    OP_JAL =  // jal
+    OP_J = 0x2, // j
+    OP_JAL = 0x3 // jal
 };
 
 // TODO: fill in the missing hex values of FUNCT_IDs (function IDs)
@@ -48,17 +48,17 @@ enum FUNCT_IDS
     FUN_ADD = 0x20, // add
     FUN_ADDU = 0x21, // add unsigned (addu)
     FUN_AND = 0x24, // and
-    FUN_JR = , // jump register (jr)
-    FUN_NOR = , // nor
-    FUN_OR = , // or
-    FUN_SLT = , // set less than (slt)
-    FUN_SLTU = , // set less than unsigned (sltu)
-    FUN_SLL = , // shift left logical (sll)
-    FUN_SRL = , // shift right logical (srl)
-    FUN_SUB = , // substract (sub)
-    FUN_SUBU =  // substract unsigned (subu)
+    FUN_JR = 0x8, // jump register (jr)
+    FUN_NOR = 0x1b, // nor
+    FUN_OR = 0x19, // or
+    FUN_SLT = 0x2a, // set less than (slt)
+    FUN_SLTU = 0x2b, // set less than unsigned (sltu)
+    FUN_SLL = 0x00, // shift left logical (sll)
+    FUN_SRL = 0x02, // shift right logical (srl)
+    FUN_SUB = 0x16, // substract (sub)
+    FUN_SUBU = 0x17  // substract unsigned (subu)
 };
-f
+
 // extract specific bits [start, end] from a 32 bit instruction
 uint extractBits(uint32_t instruction, int start, int end)
 {
@@ -136,47 +136,80 @@ int main(int argc, char** argv) {
 
         // TODO: parse instruction by completing function calls to extractBits()
         // and set operands accordingly
-        uint32_t opcode = extractBits(instruction, , );
-        uint32_t rs = extractBits(instruction, , );
-        uint32_t rt = extractBits(instruction, , );
-        uint32_t rd = extractBits(instruction, , );
-        uint32_t shamt = extractBits(instruction, , );
-        uint32_t funct = extractBits(instruction, , );
-        uint16_t immediate = extractBits(instruction, , );
-        uint32_t address = extractBits(instruction, , );
+        uint32_t opcode = extractBits(instruction, 26 , 31);
+        uint32_t rs = extractBits(instruction, 21, 25);
+        uint32_t rt = extractBits(instruction, 16 , 20);
+        uint32_t rd = extractBits(instruction, 11, 15 );
+        uint32_t shamt = extractBits(instruction, 6 , 10);
+        uint32_t funct = extractBits(instruction, 0 , 5 );
+        uint16_t immediate = extractBits(instruction, 0 , 15 );
+        uint32_t address = extractBits(instruction, 0 , 25 );
 
+<<<<<<< HEAD
         int32_t signExtImm = 
         uint32_t zeroExtImm =
         
         uint32_t branchAddr = 
         uint32_t jumpAddr = // assumes PC += 4 just happened
+=======
+        // ASK ABOUT THESE 4
+        int32_t signExtImm = signExt(extractBits(instruction, 15, 0));
+        uint32_t zeroExtImm = signExt(0);
+
+        uint32_t branchAddr = extractBits(instruction, 0, 15);
+        uint32_t jumpAddr = extractBits(instruction, 0, 25);  // assumes PC += 4 just happened
+>>>>>>> b9636ae2c91fa94852a33c28400205ace9baee84
 
         switch(opcode) {
             case OP_ZERO: // R-type instruction 
                 switch(funct) {
                     case FUN_ADD:                         
+                    regData.registers[rd] = regData.registers[rs] + regData.registers[rt];
+                    break;
 
-                    case FUN_ADDU: 
+                    case FUN_ADDU:
+                    regData.registers[rt] = regData.registers[rs] + regData.registers[rt]; 
+                    break;
 
                     case FUN_AND: 
+                    regData.registers[rt] = regData.registers[rs] & regData.registers[rt]; 
+                    break;
 
                     case FUN_JR: 
+                    PC = regData.registers[rs];
+                    break;
 
                     case FUN_NOR: 
+                    regData.registers[rd] = ~(regData.registers[rs] | regData.registers[rt]);
+                    break;
 
                     case FUN_OR: 
+                    regData.registers[rd] = (regData.registers[rs] | regData.registers[rt]);
+                    break;
 
                     case FUN_SLT: 
+                    regData.registers[rd] = (regData.registers[rs] < regData.registers[rt]) ? 1 : 0;
+                    break;
 
                     case FUN_SLTU: 
+                    regData.registers[rd] = (regData.registers[rs] < regData.registers[rt]) ? 1 : 0;
+                    break;
 
                     case FUN_SLL: 
+                    regData.registers[rd] = (regData.registers[rs] << shamt);
+                    break;
 
                     case FUN_SRL: 
+                    regData.registers[rd] = (regData.registers[rs] >> shamt);
+                    break;
 
                     case FUN_SUB:  
+                    regData.registers[rd] = regData.registers[rs] - regData.registers[rt];
+                    break;
                     
                     case FUN_SUBU: 
+                    regData.registers[rd] = regData.registers[rs] - regData.registers[rt];
+                    break;
 
                     default:
                         fprintf(stderr, "\tIllegal operation...\n");
@@ -185,25 +218,51 @@ int main(int argc, char** argv) {
                 break;
 
             case OP_ADDI: 
-                
+                regData.registers[rt] = regData.registers[rs] + signExtImm;
+                break;
             case OP_ADDIU: 
                 regData.registers[rt] = regData.registers[rs] + signExtImm;
                 break;
             case OP_ANDI: 
+                regData.registers[rd] = regData.registers[rs] & regData.registers[rs];
+                break;
 
             case OP_BEQ: 
+                if (regData.registers[rs] == regData.registers[rt]) {
+                    PC = PC + 4 + branchAddr;
+                }
+                break;
                 
             case OP_BNE:
+                 if (regData.registers[rs] != regData.registers[rt]) {
+                    PC = PC + 4 + branchAddr;
+                }
+                break;
                 
             case OP_BLEZ: 
+                if (regData.registers[rs] <= 0){
+                PC = PC + 4 + branchAddr;
+            }
+            break;
                 
             case OP_BGTZ: 
+                if (regData.registers[rs] >= 0){
+                PC = PC + 4 + branchAddr;
+            }
+            break;
                 
             case OP_J: 
+                PC = jumpAddr; //Shouldn't need the Pc + 4 since you have that assumption for jumpAddr
+                break;
                 
             case OP_JAL: 
-                
+                regData.registers[31] = PC + 8;
+                PC = jumpAddr;
+                break;
+
+            // Ask About Load and Store   
             case OP_LBU: 
+                regData.registers[rt] = {24'b0, myMem[regData.registers[rs] + signExtImm](7:0)}
 
             case OP_LHU: 
             
