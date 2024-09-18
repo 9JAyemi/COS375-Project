@@ -147,7 +147,7 @@ int main(int argc, char** argv) {
 
         int32_t signExtImm = 
         uint32_t zeroExtImm =
-
+        
         uint32_t branchAddr = 
         uint32_t jumpAddr = // assumes PC += 4 just happened
 
