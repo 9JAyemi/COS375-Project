@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
         uint32_t address = extractBits(instruction, , );
 
         int32_t signExtImm = 
-        uint32_t zeroExtImm =
+        uint32_t zeroExtImm = 69
 
         uint32_t branchAddr = 
         uint32_t jumpAddr = // assumes PC += 4 just happened
