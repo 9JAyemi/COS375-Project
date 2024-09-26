@@ -13,7 +13,6 @@ union REGS
 };
 
 union REGS regData;
-// TODO: fill in the missing hex values of the OP_IDs (opcodes)
 enum OP_IDS
 {
     //R-type opcodes...
@@ -41,7 +40,7 @@ enum OP_IDS
     OP_JAL = 0x3 // jal
 };
 
-// TODO: fill in the missing hex values of FUNCT_IDs (function IDs)
+
 enum FUNCT_IDS
 {
     FUN_ADD = 0x20, // add
@@ -145,8 +144,16 @@ int main(int argc, char** argv) {
         uint32_t address = extractBits(instruction, 0 , 25 );
 
         // ASK ABOUT THESE 4
-        int32_t signExtImm = signExt(immediate);
-        uint32_t zeroExtImm = signExt(0);
+        int msb = extractBits(instruction, 15,15);
+        int32_t signExtImm;
+        if (msb == 1) {
+            signExtImm = immediate | 0xFFFF0000;
+        }
+        else {
+            signExtImm = immediate;
+        }
+
+        uint32_t zeroExtImm = immediate;
 
         uint32_t branchAddr = extractBits(instruction, 0, 15);
         uint32_t jumpAddr = extractBits(instruction, 0, 25);  // assumes PC += 4 just happened
@@ -243,7 +250,7 @@ int main(int argc, char** argv) {
             break;
                 
             case OP_J: 
-                PC = jumpAddr; //Shouldn't need the Pc + 4 since you have that assumption for jumpAddr
+                PC = jumpAddr; 
                 break;
                 
             case OP_JAL: 
@@ -252,23 +259,17 @@ int main(int argc, char** argv) {
                 break;
 
             // Ask About Load and Store   
-            case OP_LBU: // ASK ABOUT
-                u_int32_t value;
-                myMem->getMemValue(regData.registers[rs] + signExtImm, value, BYTE_SIZE);
-                regData.registers[rt] = extractBits(value, 0, 7);
+            case OP_LBU: 
+                myMem->getMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], BYTE_SIZE);
 
             case OP_LHU:  
-                u_int32_t value;
-                myMem->getMemValue(regData.registers[rs] + signExtImm, value, HALF_SIZE);
-                regData.registers[rt] = extractBits(value, 0, 15);
+                myMem->getMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], HALF_SIZE);
 
             case OP_LUI: 
                 regData.registers[rt] = (int32_t) immediate;
 
             case OP_LW: 
-                u_int32_t value;
-                myMem->getMemValue(regData.registers[rs] + signExtImm, value, WORD_SIZE);
-                regData.registers[rt] = (int32_t) value;
+                myMem->getMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], WORD_SIZE);
 
             case OP_ORI: 
                     regData.registers[rt] = regData.registers[rs] | zeroExtImm;
@@ -279,20 +280,13 @@ int main(int argc, char** argv) {
             case OP_SLTIU: 
                     regData.registers[rt] = (regData.registers[rs] < (u_int16_t) signExtImm) ? 1:0;
                     
-// Should value be signed or unsigned or does it not matter
             case OP_SB: 
-                (int32_t) value;
-                value = extractBits(regData.registers[rt], 0, 7);
-                myMem->setMemValue(regData.registers[rs] + signExtImm, value, BYTE_SIZE);
+                myMem->setMemValue(regData.registers[rs] + signExtImm,  extractBits(regData.registers[rt], 0, 7), BYTE_SIZE);
 
             case OP_SH: 
-                (int32_t) value;
-                value = extractBits(regData.registers[rt], 0, 15);
-                myMem->setMemValue(regData.registers[rs] + signExtImm, value, HALF_SIZE);
+                myMem->setMemValue(regData.registers[rs] + signExtImm, extractBits(regData.registers[rt], 0, 15), HALF_SIZE);
             case OP_SW: 
-                u_int32_t value;
-                value = regData.registers[rt];
-                myMem->setMemValue(regData.registers[rs] + signExtImm, value, WORD_SIZE);
+                myMem->setMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], WORD_SIZE);
 
             default:
                 fprintf(stderr, "\tIllegal operation...\n");
