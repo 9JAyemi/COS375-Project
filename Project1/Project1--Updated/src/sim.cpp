@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
                     break;
 
                     case FUN_ADDU:
-                    regData.registers[rt] = regData.registers[rs] + regData.registers[rt]; 
+                    regData.registers[rt] = (u_int32_t) regData.registers[rs] + (u_int32_t) regData.registers[rt]; 
                     break;
 
                     case FUN_AND: 
@@ -183,7 +183,7 @@ int main(int argc, char** argv) {
                     break;
 
                     case FUN_SLTU: 
-                    regData.registers[rd] = (regData.registers[rs] < regData.registers[rt]) ? 1 : 0;
+                    regData.registers[rd] = ((u_int32_t)regData.registers[rs] < (u_int32_t) regData.registers[rt]) ? 1 : 0;
                     break;
 
                     case FUN_SLL: 
@@ -199,7 +199,7 @@ int main(int argc, char** argv) {
                     break;
                     
                     case FUN_SUBU: 
-                    regData.registers[rd] = regData.registers[rs] - regData.registers[rt];
+                    regData.registers[rd] = (u_int32_t)regData.registers[rs] - (u_int32_t)regData.registers[rt];
                     break;
 
                     default:
@@ -212,7 +212,7 @@ int main(int argc, char** argv) {
                 regData.registers[rt] = regData.registers[rs] + signExtImm;
                 break;
             case OP_ADDIU: 
-                regData.registers[rt] = regData.registers[rs] + signExtImm;
+                regData.registers[rt] = (u_int32_t) regData.registers[rs] + (u_int32_t) signExtImm;
                 break;
             case OP_ANDI: 
                 regData.registers[rd] = regData.registers[rs] & regData.registers[rs];
@@ -259,29 +259,41 @@ int main(int argc, char** argv) {
 
             case OP_LHU:  
                 u_int32_t value;
-                myMem->getMemValue(regData.registers[rs] + signExtImm, value, BYTE_SIZE);
+                myMem->getMemValue(regData.registers[rs] + signExtImm, value, HALF_SIZE);
                 regData.registers[rt] = extractBits(value, 0, 15);
 
             case OP_LUI: 
-                regData.registers[rt] = immediate;
+                regData.registers[rt] = (int32_t) immediate;
+
             case OP_LW: 
                 u_int32_t value;
                 myMem->getMemValue(regData.registers[rs] + signExtImm, value, WORD_SIZE);
-                regData.registers[rt] = value;
+                regData.registers[rt] = (int32_t) value;
 
             case OP_ORI: 
                     regData.registers[rt] = regData.registers[rs] | zeroExtImm;
                 
             case OP_SLTI: 
+                    regData.registers[rt] = (regData.registers[rs] < signExtImm) ? 1:0;
                 
             case OP_SLTIU: 
-                
+                    regData.registers[rt] = (regData.registers[rs] < (u_int16_t) signExtImm) ? 1:0;
+                    
+// Should value be signed or unsigned or does it not matter
             case OP_SB: 
-                
+                (int32_t) value;
+                value = extractBits(regData.registers[rt], 0, 7);
+                myMem->setMemValue(regData.registers[rs] + signExtImm, value, BYTE_SIZE);
+
             case OP_SH: 
-            
+                (int32_t) value;
+                value = extractBits(regData.registers[rt], 0, 15);
+                myMem->setMemValue(regData.registers[rs] + signExtImm, value, HALF_SIZE);
             case OP_SW: 
-             
+                u_int32_t value;
+                value = regData.registers[rt];
+                myMem->setMemValue(regData.registers[rs] + signExtImm, value, WORD_SIZE);
+
             default:
                 fprintf(stderr, "\tIllegal operation...\n");
                 err = true;
