@@ -13,7 +13,6 @@ union REGS
 };
 
 union REGS regData;
-
 // TODO: fill in the missing hex values of the OP_IDs (opcodes)
 enum OP_IDS
 {
@@ -146,7 +145,7 @@ int main(int argc, char** argv) {
         uint32_t address = extractBits(instruction, 0 , 25 );
 
         // ASK ABOUT THESE 4
-        int32_t signExtImm = signExt(extractBits(instruction, 15, 0));
+        int32_t signExtImm = signExt(immediate);
         uint32_t zeroExtImm = signExt(0);
 
         uint32_t branchAddr = extractBits(instruction, 0, 15);
@@ -253,16 +252,25 @@ int main(int argc, char** argv) {
                 break;
 
             // Ask About Load and Store   
-            case OP_LBU: 
-                regData.registers[rt] = (getMemValue(regData.registers[rs], signExtImm, MemEntrySize::BYTE_SIZE);
+            case OP_LBU: // ASK ABOUT
+                u_int32_t value;
+                myMem->getMemValue(regData.registers[rs] + signExtImm, value, BYTE_SIZE);
+                regData.registers[rt] = extractBits(value, 0, 7);
 
-            case OP_LHU: 
-            
+            case OP_LHU:  
+                u_int32_t value;
+                myMem->getMemValue(regData.registers[rs] + signExtImm, value, BYTE_SIZE);
+                regData.registers[rt] = extractBits(value, 0, 15);
+
             case OP_LUI: 
-                
+                regData.registers[rt] = immediate;
             case OP_LW: 
-                
+                u_int32_t value;
+                myMem->getMemValue(regData.registers[rs] + signExtImm, value, WORD_SIZE);
+                regData.registers[rt] = value;
+
             case OP_ORI: 
+                    regData.registers[rt] = regData.registers[rs] | zeroExtImm;
                 
             case OP_SLTI: 
                 
