@@ -145,20 +145,12 @@ int main(int argc, char** argv) {
         uint16_t immediate = extractBits(instruction, 0 , 15 );
         uint32_t address = extractBits(instruction, 0 , 25 );
 
-<<<<<<< HEAD
-        int32_t signExtImm = 
-        uint32_t zeroExtImm =
-        
-        uint32_t branchAddr = 
-        uint32_t jumpAddr = // assumes PC += 4 just happened
-=======
         // ASK ABOUT THESE 4
         int32_t signExtImm = signExt(extractBits(instruction, 15, 0));
         uint32_t zeroExtImm = signExt(0);
 
         uint32_t branchAddr = extractBits(instruction, 0, 15);
         uint32_t jumpAddr = extractBits(instruction, 0, 25);  // assumes PC += 4 just happened
->>>>>>> b9636ae2c91fa94852a33c28400205ace9baee84
 
         switch(opcode) {
             case OP_ZERO: // R-type instruction 
@@ -262,7 +254,7 @@ int main(int argc, char** argv) {
 
             // Ask About Load and Store   
             case OP_LBU: 
-                regData.registers[rt] = {24'b0, myMem[regData.registers[rs] + signExtImm](7:0)}
+                regData.registers[rt] = (getMemValue(regData.registers[rs], signExtImm, MemEntrySize::BYTE_SIZE);
 
             case OP_LHU: 
             
