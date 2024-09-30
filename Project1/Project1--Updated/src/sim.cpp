@@ -266,7 +266,7 @@ int main(int argc, char** argv) {
                 myMem->getMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], HALF_SIZE);
 
             case OP_LUI: 
-                regData.registers[rt] = (int32_t) immediate;
+                regData.registers[rt] = immediate << 16;
 
             case OP_LW: 
                 myMem->getMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], WORD_SIZE);
