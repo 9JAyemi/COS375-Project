@@ -38,6 +38,7 @@ enum OP_IDS
     //J-type opcodes...
     OP_J = 0x2, // j
     OP_JAL = 0x3 // jal
+    
 };
 
 
