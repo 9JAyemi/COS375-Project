@@ -166,8 +166,8 @@ int main(int argc, char** argv) {
 
         uint32_t zeroExtImm = immediate;
 
-        uint32_t branchAddr = extractBits(instruction, 0, 15);
-        uint32_t jumpAddr = extractBits(instruction, 0, 25);  // assumes PC += 4 just happened
+        uint32_t branchAddr = extractBits(instruction, 15, 0);
+        uint32_t jumpAddr = extractBits(instruction, 25, 0);  // assumes PC += 4 just happened
 
         switch(opcode) {
             case OP_ZERO: // R-type instruction 
@@ -292,17 +292,16 @@ int main(int argc, char** argv) {
                     regData.registers[rt] = (regData.registers[rs] < (u_int16_t) signExtImm) ? 1:0;
                     
             case OP_SB: 
-                myMem->setMemValue(regData.registers[rs] + signExtImm,  extractBits(regData.registers[rt], 0, 7), BYTE_SIZE);
+                myMem->setMemValue(regData.registers[rs] + signExtImm,  extractBits(regData.registers[rt], 7, 0), BYTE_SIZE);
 
             case OP_SH: 
-                myMem->setMemValue(regData.registers[rs] + signExtImm, extractBits(regData.registers[rt], 0, 15), HALF_SIZE);
+                myMem->setMemValue(regData.registers[rs] + signExtImm, extractBits(regData.registers[rt], 15, 0), HALF_SIZE);
             case OP_SW: 
                 myMem->setMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], WORD_SIZE);
 
             default:
             
                 fprintf(stderr, "\tIllegal operation...\n");
-                
                 err = true;
         }
     }
