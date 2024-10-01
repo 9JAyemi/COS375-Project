@@ -128,6 +128,8 @@ int main(int argc, char** argv) {
         myMem->getMemValue(PC, instruction, WORD_SIZE);
         std::string result = uint32ToString(instruction);
 
+        std::cout << "The string representation of the number is: " << result << std::endl;
+
         // increment PC & reset zero register
         PC += 4;
         regData.registers[0] = 0;
@@ -141,6 +143,9 @@ int main(int argc, char** argv) {
         // TODO: parse instruction by completing function calls to extractBits()
         // and set operands accordingly
         uint32_t opcode = extractBits(instruction, 26 , 31);
+        std::string opcode_r = uint32ToString(opcode);
+        std::cout << "The string representation of the number is: " << opcode_r << std::endl;
+
         uint32_t rs = extractBits(instruction, 21, 25);
         uint32_t rt = extractBits(instruction, 16 , 20);
         uint32_t rd = extractBits(instruction, 11, 15 );
@@ -295,8 +300,9 @@ int main(int argc, char** argv) {
                 myMem->setMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], WORD_SIZE);
 
             default:
+            
                 fprintf(stderr, "\tIllegal operation...\n");
-                std::cout << "The string representation of the number is: " << result << std::endl;
+                
                 err = true;
         }
     }
