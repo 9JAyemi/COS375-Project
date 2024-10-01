@@ -81,6 +81,10 @@ void dump(MemoryStore *myMem) {
     dumpMemoryState(myMem);
 }
 
+std::string uint32ToString(uint32_t num) {
+    return std::to_string(num);
+}
+
 int main(int argc, char** argv) {
 
     // open instruction file
@@ -117,10 +121,12 @@ int main(int argc, char** argv) {
     
     // start simulation
     // TODO: complete simulation loop and implement branch delay logic
+
     while (!err) {
         // fetch current instruction
         uint32_t instruction;
         myMem->getMemValue(PC, instruction, WORD_SIZE);
+        std::string result = uint32ToString(instruction);
 
         // increment PC & reset zero register
         PC += 4;
@@ -290,6 +296,7 @@ int main(int argc, char** argv) {
 
             default:
                 fprintf(stderr, "\tIllegal operation...\n");
+                std::cout << "The string representation of the number is: " << result << std::endl;
                 err = true;
         }
     }
