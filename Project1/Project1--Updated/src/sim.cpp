@@ -268,7 +268,7 @@ int main(int argc, char** argv) {
                 
             case OP_BLEZ: 
                 if (regData.registers[rs] <= 0){
-                PC = PC + 8 + branchAddr;
+                PC = PC + 4 + branchAddr;
             }
             break;
                 
@@ -276,7 +276,7 @@ int main(int argc, char** argv) {
                 if (regData.registers[rs] > 0){
                 result = uint32ToString(PC);
                 std::cout << "The string representation of the PC is: " << result << std::endl;
-                PC = PC + 4 + (branchAddr << 2);
+                PC = PC + 4 + (branchAddr);
                 result = uint32ToString(branchAddr);
                 std::cout << "The string representation of the branchAddr is: " << result << std::endl;
                 
