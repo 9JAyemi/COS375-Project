@@ -245,30 +245,32 @@ int main(int argc, char** argv) {
             case OP_ADDI: 
                 regData.registers[rt] = regData.registers[rs] + signExtImm;
                 break;
+                
             case OP_ADDIU: 
                 regData.registers[rt] = (u_int32_t) regData.registers[rs] + (u_int32_t) signExtImm;
                 result = uint32ToString(regData.registers[rt]);
                 std::cout << "The string representation of the ADDIU is: " << result << std::endl;
                 break;
+
             case OP_ANDI: 
                 regData.registers[rd] = regData.registers[rs] & regData.registers[rs];
                 break;
 
             case OP_BEQ: 
                 if (regData.registers[rs] == regData.registers[rt]) {
-                    PC = PC + 8 + branchAddr;
+                    PC = PC + (branchAddr << 2 );
                 }
                 break;
                 
             case OP_BNE:
                  if (regData.registers[rs] != regData.registers[rt]) {
-                    PC = PC + 8 + branchAddr;
+                    PC = PC + (branchAddr << 2 );
                 }
                 break;
                 
             case OP_BLEZ: 
                 if (regData.registers[rs] <= 0){
-                PC = PC + 4 + branchAddr;
+                PC = PC + (branchAddr << 2 );
             }
             break;
                 
@@ -276,7 +278,7 @@ int main(int argc, char** argv) {
                 if (regData.registers[rs] > 0){
                 result = uint32ToString(PC);
                 std::cout << "The string representation of the PC is: " << result << std::endl;
-                PC = PC + 4 + (branchAddr);
+                PC = PC + (branchAddr << 2 );
                 result = uint32ToString(branchAddr);
                 std::cout << "The string representation of the branchAddr is: " << result << std::endl;
                 
