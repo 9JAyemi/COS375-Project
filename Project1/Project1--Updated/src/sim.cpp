@@ -129,9 +129,13 @@ int main(int argc, char** argv) {
         // fetch current instruction
         uint32_t instruction;
         myMem->getMemValue(PC, instruction, WORD_SIZE);
-        std::string result = uint32ToString(instruction);
 
-        std::cout << "The string representation of the number is: " << result << std::endl;
+        std::stringstream ss;
+        ss << std::hex << std::uppercase << instruction;
+        std::string instruction_hex = ss.str();
+
+        std::cout << "The hex representation of the instruction is: " << instruction_hex << std::endl;
+
 
         // increment PC & reset zero register
         PC += 4;
@@ -148,7 +152,7 @@ int main(int argc, char** argv) {
         uint32_t opcode = extractBits(instruction, 31 , 26);
        // std::string opcode_r = uint32ToString(opcode);
 
-        std::stringstream ss;
+       // std::stringstream ss;
         ss << std::hex << std::uppercase << opcode;
         std::string opcode_hex = ss.str();
 
@@ -166,24 +170,28 @@ int main(int argc, char** argv) {
         int msb = extractBits(instruction, 15,15);
         int32_t signExtImm;
         if (msb == 1) {
-            signExtImm = immediate | 0xFFFF0000;
+            signExtImm = (static_cast<int32_t>(immediate) | 0xFFFF0000);
         }
         else {
-            signExtImm = immediate;
+            signExtImm = static_cast<int32_t>(immediate);
         }
 
         uint32_t zeroExtImm = immediate;
 
         int32_t branchAddr = signExt(extractBits(instruction, 15, 0));
         uint32_t jumpAddr = extractBits(instruction, 25, 0);  // assumes PC += 4 just happened
-
+        std::string result;
         switch(opcode) {
             case OP_ZERO: // R-type instruction 
                 switch(funct) {
                     case FUN_ADD:                         
                     regData.registers[rd] = regData.registers[rs] + regData.registers[rt];
+                    
+                    result = uint32ToString(regData.registers[rd]);
+                    std::cout << "The result of the FUN_ADD is: " << result << std::endl;
+                  //  exit(0);
                     break;
-
+                    
                     case FUN_ADDU:
                     regData.registers[rt] = (u_int32_t) regData.registers[rs] + (u_int32_t) regData.registers[rt]; 
                     break;
@@ -271,7 +279,7 @@ int main(int argc, char** argv) {
                 PC = PC + 4 + (branchAddr << 2);
                 result = uint32ToString(branchAddr);
                 std::cout << "The string representation of the branchAddr is: " << result << std::endl;
-                exit(0);
+                
             }
             break;
                 
@@ -295,9 +303,10 @@ int main(int argc, char** argv) {
                 regData.registers[rt] = immediate << 16;
             break;
             case OP_LW: 
+            //Issue that one of the LW might not be updating as we go past 1 loop
                 myMem->getMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], WORD_SIZE);
-                result = uint32ToString(regData.registers[rs]);
-                std::cout << "The string representation of the LW is: " << result << std::endl;
+                result = uint32ToString(regData.registers[rt]);
+                std::cout << "whats in mem of the LW is: " << result << std::endl;
             break;
             case OP_ORI: 
                     regData.registers[rt] = regData.registers[rs] | zeroExtImm;
@@ -315,7 +324,18 @@ int main(int argc, char** argv) {
                 myMem->setMemValue(regData.registers[rs] + signExtImm, extractBits(regData.registers[rt], 15, 0), HALF_SIZE);
             break;
             case OP_SW: 
+                u_int32_t result1;
                 myMem->setMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], WORD_SIZE);
+                result = uint32ToString(regData.registers[rs] + signExtImm);
+                std::cout << "The memAddr of the SW is: " << result << std::endl;
+
+                result = uint32ToString(regData.registers[rt]);
+                std::cout << "The rt of the SW is: " << result << std::endl;
+
+                myMem->getMemValue(regData.registers[rt], result1, WORD_SIZE);
+                result = uint32ToString(result1);
+                std::cout << "The result of the SW is: " << result1 << std::endl;
+               // exit(0);
             break;
 
             default:
