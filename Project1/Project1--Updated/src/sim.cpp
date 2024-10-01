@@ -3,6 +3,8 @@
 #include "RegisterInfo.h"
 #include "EndianHelpers.h"
 #include <fstream>
+#include <sstream>
+#include <iomanip>
 #include <iostream>
 using namespace std; 
 
@@ -23,10 +25,10 @@ enum OP_IDS
     OP_ANDI = 0xc, // andi
     OP_BEQ = 0x4, // beq
     OP_BNE = 0x5, // bne
-    OP_LBU = 0x18, // lbu
-    OP_LHU = 0x19, // lhu
+    OP_LBU = 0x24, // lbu
+    OP_LHU = 0x25, // lhu
     OP_LUI = 0xf, // lui
-    OP_LW = 0x17, // lw
+    OP_LW = 0x23, // lw
     OP_ORI = 0xd, // ori
     OP_SLTI = 0xa, // slti
     OP_SLTIU = 0xb, // sltiu
@@ -38,7 +40,7 @@ enum OP_IDS
     //J-type opcodes...
     OP_J = 0x2, // j
     OP_JAL = 0x3 // jal
-    
+
 };
 
 
@@ -144,8 +146,13 @@ int main(int argc, char** argv) {
         // TODO: parse instruction by completing function calls to extractBits()
         // and set operands accordingly
         uint32_t opcode = extractBits(instruction, 31 , 26);
-        std::string opcode_r = uint32ToString(opcode);
-        std::cout << "The string representation of the number is: " << opcode_r << std::endl;
+       // std::string opcode_r = uint32ToString(opcode);
+
+        std::stringstream ss;
+        ss << std::hex << std::uppercase << opcode;
+        std::string opcode_hex = ss.str();
+
+        std::cout << "The hex representation of the number is: " << opcode_hex << std::endl;
 
         uint32_t rs = extractBits(instruction, 25, 21);
         uint32_t rt = extractBits(instruction, 20 , 16);
@@ -167,7 +174,7 @@ int main(int argc, char** argv) {
 
         uint32_t zeroExtImm = immediate;
 
-        uint32_t branchAddr = extractBits(instruction, 15, 0);
+        int32_t branchAddr = signExt(extractBits(instruction, 15, 0));
         uint32_t jumpAddr = extractBits(instruction, 25, 0);  // assumes PC += 4 just happened
 
         switch(opcode) {
@@ -232,6 +239,8 @@ int main(int argc, char** argv) {
                 break;
             case OP_ADDIU: 
                 regData.registers[rt] = (u_int32_t) regData.registers[rs] + (u_int32_t) signExtImm;
+                result = uint32ToString(regData.registers[rt]);
+                std::cout << "The string representation of the ADDIU is: " << result << std::endl;
                 break;
             case OP_ANDI: 
                 regData.registers[rd] = regData.registers[rs] & regData.registers[rs];
@@ -239,25 +248,30 @@ int main(int argc, char** argv) {
 
             case OP_BEQ: 
                 if (regData.registers[rs] == regData.registers[rt]) {
-                    PC = PC + 4 + branchAddr;
+                    PC = PC + 8 + branchAddr;
                 }
                 break;
                 
             case OP_BNE:
                  if (regData.registers[rs] != regData.registers[rt]) {
-                    PC = PC + 4 + branchAddr;
+                    PC = PC + 8 + branchAddr;
                 }
                 break;
                 
             case OP_BLEZ: 
                 if (regData.registers[rs] <= 0){
-                PC = PC + 4 + branchAddr;
+                PC = PC + 8 + branchAddr;
             }
             break;
                 
             case OP_BGTZ: 
-                if (regData.registers[rs] >= 0){
-                PC = PC + 4 + branchAddr;
+                if (regData.registers[rs] > 0){
+                result = uint32ToString(PC);
+                std::cout << "The string representation of the PC is: " << result << std::endl;
+                PC = PC + 4 + (branchAddr << 2);
+                result = uint32ToString(branchAddr);
+                std::cout << "The string representation of the branchAddr is: " << result << std::endl;
+                exit(0);
             }
             break;
                 
@@ -273,32 +287,36 @@ int main(int argc, char** argv) {
             // Ask About Load and Store   
             case OP_LBU: 
                 myMem->getMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], BYTE_SIZE);
-
+            break;
             case OP_LHU:  
                 myMem->getMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], HALF_SIZE);
-
+            break;
             case OP_LUI: 
                 regData.registers[rt] = immediate << 16;
-
+            break;
             case OP_LW: 
                 myMem->getMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], WORD_SIZE);
-
+                result = uint32ToString(regData.registers[rs]);
+                std::cout << "The string representation of the LW is: " << result << std::endl;
+            break;
             case OP_ORI: 
                     regData.registers[rt] = regData.registers[rs] | zeroExtImm;
-                
+            break;    
             case OP_SLTI: 
                     regData.registers[rt] = (regData.registers[rs] < signExtImm) ? 1:0;
-                
+            break;    
             case OP_SLTIU: 
                     regData.registers[rt] = (regData.registers[rs] < (u_int16_t) signExtImm) ? 1:0;
-                    
+            break;        
             case OP_SB: 
                 myMem->setMemValue(regData.registers[rs] + signExtImm,  extractBits(regData.registers[rt], 7, 0), BYTE_SIZE);
-
+            break;  
             case OP_SH: 
                 myMem->setMemValue(regData.registers[rs] + signExtImm, extractBits(regData.registers[rt], 15, 0), HALF_SIZE);
+            break;
             case OP_SW: 
                 myMem->setMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], WORD_SIZE);
+            break;
 
             default:
             
