@@ -7,4 +7,5 @@ JALStart: add $t5, 20
     .word 0xfeedfeed
     
 JALTestAddr:  addi $t5, 2 
-    jr  31 #ask abo
+    jr  $ra #ask abo
+    .word 0xfeedfeed

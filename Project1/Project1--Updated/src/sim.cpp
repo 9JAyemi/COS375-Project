@@ -49,7 +49,7 @@ enum FUNCT_IDS
     FUN_ADD = 0x20, // add
     FUN_ADDU = 0x21, // add unsigned (addu)
     FUN_AND = 0x24, // and
-    FUN_JR = 0x8, // jump register (jr)
+    FUN_JR = 0x08, // jump register (jr)
     FUN_NOR = 0x27, // nor
     FUN_OR = 0x25, // or
     FUN_SLT = 0x2a, // set less than (slt)
@@ -205,6 +205,8 @@ int main(int argc, char** argv) {
 
                     case FUN_JR: 
                     PC = regData.registers[rs];
+                    result = uint32ToString(regData.registers[rs]);
+                    std::cout << "The result of the FUN_JR is: " << result << std::endl;
                     break;
 
                     case FUN_NOR: 
