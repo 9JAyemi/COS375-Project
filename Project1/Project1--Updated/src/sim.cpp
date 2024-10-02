@@ -50,14 +50,14 @@ enum FUNCT_IDS
     FUN_ADDU = 0x21, // add unsigned (addu)
     FUN_AND = 0x24, // and
     FUN_JR = 0x8, // jump register (jr)
-    FUN_NOR = 0x1b, // nor
-    FUN_OR = 0x19, // or
+    FUN_NOR = 0x27, // nor
+    FUN_OR = 0x25, // or
     FUN_SLT = 0x2a, // set less than (slt)
     FUN_SLTU = 0x2b, // set less than unsigned (sltu)
     FUN_SLL = 0x00, // shift left logical (sll)
     FUN_SRL = 0x02, // shift right logical (srl)
-    FUN_SUB = 0x16, // substract (sub)
-    FUN_SUBU = 0x17  // substract unsigned (subu)
+    FUN_SUB = 0x22, // substract (sub)
+    FUN_SUBU = 0x23  // substract unsigned (subu)
 };
 
 // extract specific bits [start, end] from a 32 bit instruction
@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
         ss << std::hex << std::uppercase << opcode;
         std::string opcode_hex = ss.str();
 
-        std::cout << "The hex representation of the number is: " << opcode_hex << std::endl;
+        std::cout << "The hex representation of the opcode is: " << opcode_hex << std::endl;
 
         uint32_t rs = extractBits(instruction, 25, 21);
         uint32_t rt = extractBits(instruction, 20 , 16);
@@ -193,11 +193,14 @@ int main(int argc, char** argv) {
                     break;
                     
                     case FUN_ADDU:
-                    regData.registers[rt] = (u_int32_t) regData.registers[rs] + (u_int32_t) regData.registers[rt]; 
+                    regData.registers[rd] = (u_int32_t) regData.registers[rs] + (u_int32_t) regData.registers[rt]; 
                     break;
 
                     case FUN_AND: 
-                    regData.registers[rt] = regData.registers[rs] & regData.registers[rt]; 
+                    regData.registers[rd] = regData.registers[rs] & regData.registers[rt]; 
+                    result = uint32ToString(regData.registers[rd]);
+                    std::cout << "The result of the FUN_AND is: " << result << std::endl;
+
                     break;
 
                     case FUN_JR: 
@@ -206,6 +209,8 @@ int main(int argc, char** argv) {
 
                     case FUN_NOR: 
                     regData.registers[rd] = ~(regData.registers[rs] | regData.registers[rt]);
+                    result = uint32ToString(regData.registers[rd]);
+                    std::cout << "The result of the FUN_NOR is: " << result << std::endl;
                     break;
 
                     case FUN_OR: 
@@ -221,11 +226,15 @@ int main(int argc, char** argv) {
                     break;
 
                     case FUN_SLL: 
-                    regData.registers[rd] = (regData.registers[rs] << shamt);
+                    regData.registers[rd] = regData.registers[rt] << shamt;
+                    result = uint32ToString(regData.registers[rd]);
+                    std::cout << "The result of the FUN_SLL is: " << result << std::endl;
+                    result = uint32ToString(shamt);
+                    std::cout << "The result of shamt is: " << result << std::endl;
                     break;
 
                     case FUN_SRL: 
-                    regData.registers[rd] = (regData.registers[rs] >> shamt);
+                    regData.registers[rd] = (regData.registers[rt] >> shamt);
                     break;
 
                     case FUN_SUB:  
@@ -253,7 +262,7 @@ int main(int argc, char** argv) {
                 break;
 
             case OP_ANDI: 
-                regData.registers[rd] = regData.registers[rs] & regData.registers[rs];
+                regData.registers[rt] = regData.registers[rs] & zeroExtImm;
                 break;
 
             case OP_BEQ: 
