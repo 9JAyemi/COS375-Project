@@ -181,6 +181,8 @@ int main(int argc, char** argv) {
         int32_t branchAddr = signExt(extractBits(instruction, 15, 0));
         uint32_t jumpAddr = extractBits(instruction, 25, 0);  // assumes PC += 4 just happened
         std::string result;
+         ss << std::hex << std::uppercase << jumpAddr;
+        std::string jumpAddr_hex = ss.str();
         switch(opcode) {
             case OP_ZERO: // R-type instruction 
                 switch(funct) {
@@ -301,8 +303,15 @@ int main(int argc, char** argv) {
                 break;
                 
             case OP_JAL: 
-                regData.registers[31] = PC + 8;
+                regData.registers[31] = PC + 4;
                 PC = jumpAddr;
+
+                result = uint32ToString(regData.registers[31]);
+                    std::cout << "The result of the JAL 31 reg is: " << result << std::endl;
+                result = uint32ToString(PC);
+                    std::cout << "The result of the JAL PC is: " << result << std::endl;
+
+        std::cout << "The hex representation of the jumpAddr_hex is: " << jumpAddr_hex << std::endl;
                 break;
 
             // Ask About Load and Store   
