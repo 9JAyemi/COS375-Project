@@ -187,6 +187,15 @@ int main(int argc, char** argv) {
         int32_t branchAddr = (signExt(extractBits(instruction, 15, 0)) << 2);
         uint32_t jumpAddr = (((PC) >> 28) << 28)| (extractBits(instruction, 25, 0) << 2);  // assumes PC += 4 just happened
         
+        std::string a;
+        a = uint32ToString((((PC) >> 28) << 28));
+        std::cout << "PC shift 28 equals:" << a << std::endl;
+         a = uint32ToString((extractBits(instruction, 25, 0) << 2));
+        std::cout << "Extract 26 bits from instr:" << a << std::endl;
+        a = uint32ToString((extractBits(instruction, 25, 0)));
+        std::cout << "Extract 26 bits from instr without shift:" << a << std::endl;
+
+
         std::string result;
          ss << std::hex << std::uppercase << jumpAddr;
         std::string jumpAddr_hex = ss.str();

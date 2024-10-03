@@ -5,7 +5,7 @@ main: li   $t5, 30
     sub  $t5, $t5, $t1
     
     
-Jtest:  addi $t5, 2 
+Jtest:  addi $t5,$t5, 2 
    .word 0xfeedfeed
 
     
