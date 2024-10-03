@@ -185,10 +185,14 @@ int main(int argc, char** argv) {
         uint32_t zeroExtImm = immediate;
 
         int32_t branchAddr = (signExt(extractBits(instruction, 15, 0)) << 2);
-        uint32_t jumpAddr = (extractBits(instruction, 25, 0) << 2);  // assumes PC += 4 just happened
+        uint32_t jumpAddr = ((PC >> 28) << 28)| (extractBits(instruction, 25, 0) << 2);  // assumes PC += 4 just happened
+        
         std::string result;
          ss << std::hex << std::uppercase << jumpAddr;
         std::string jumpAddr_hex = ss.str();
+
+        result = uint32ToString(jumpAddr);
+        std::cout << "JumpAddr is : " << result << std::endl;
         switch(opcode) {
             case OP_ZERO: // R-type instruction 
                 switch(funct) {
@@ -314,7 +318,7 @@ int main(int argc, char** argv) {
                 
             case OP_JAL: 
                 regData.registers[31] = PC;
-                PC = PC + jumpAddr;
+                PC = jumpAddr;
 
                 result = uint32ToString(regData.registers[31]);
                     std::cout << "The result of the JAL 31 reg is: " << result << std::endl;
