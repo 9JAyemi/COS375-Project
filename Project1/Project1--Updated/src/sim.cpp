@@ -138,7 +138,13 @@ int main(int argc, char** argv) {
 
 
         // increment PC & reset zero register
-        PC += 4;
+        if (encounteredBranch == true){
+            PC += savedPC;
+        }
+        else {
+            PC += 4;
+        }
+       
         regData.registers[0] = 0;
 
         // check for halt instruction
@@ -178,8 +184,8 @@ int main(int argc, char** argv) {
 
         uint32_t zeroExtImm = immediate;
 
-        int32_t branchAddr = signExt(extractBits(instruction, 15, 0));
-        uint32_t jumpAddr = extractBits(instruction, 25, 0);  // assumes PC += 4 just happened
+        int32_t branchAddr = (signExt(extractBits(instruction, 15, 0)) << 2);
+        uint32_t jumpAddr = (extractBits(instruction, 25, 0) << 2);  // assumes PC += 4 just happened
         std::string result;
          ss << std::hex << std::uppercase << jumpAddr;
         std::string jumpAddr_hex = ss.str();
@@ -271,19 +277,22 @@ int main(int argc, char** argv) {
 
             case OP_BEQ: 
                 if (regData.registers[rs] == regData.registers[rt]) {
-                    PC = PC + (branchAddr << 2 );
+                    encounteredBranch = true;
+                    savedPC = PC + branchAddr;
                 }
                 break;
                 
             case OP_BNE:
                  if (regData.registers[rs] != regData.registers[rt]) {
-                    PC = PC + (branchAddr << 2 );
+                    encounteredBranch = true;
+                    savedPC = PC + branchAddr;;
                 }
                 break;
                 
             case OP_BLEZ: 
                 if (regData.registers[rs] <= 0){
-                PC = PC + (branchAddr << 2 );
+                encounteredBranch = true;
+                    savedPC = PC + branchAddr;;
             }
             break;
                 
@@ -291,7 +300,8 @@ int main(int argc, char** argv) {
                 if (regData.registers[rs] > 0){
                 result = uint32ToString(PC);
                 std::cout << "The string representation of the PC is: " << result << std::endl;
-                PC = PC + (branchAddr << 2 );
+                encounteredBranch = true;
+                    savedPC = PC + branchAddr;
                 result = uint32ToString(branchAddr);
                 std::cout << "The string representation of the branchAddr is: " << result << std::endl;
                 
@@ -303,8 +313,8 @@ int main(int argc, char** argv) {
                 break;
                 
             case OP_JAL: 
-                regData.registers[31] = PC + 4;
-                PC = jumpAddr;
+                regData.registers[31] = PC;
+                PC = PC + jumpAddr;
 
                 result = uint32ToString(regData.registers[31]);
                     std::cout << "The result of the JAL 31 reg is: " << result << std::endl;
