@@ -185,7 +185,7 @@ int main(int argc, char** argv) {
         uint32_t zeroExtImm = immediate;
 
         int32_t branchAddr = (signExt(extractBits(instruction, 15, 0)) << 2);
-        uint32_t jumpAddr = ((PC >> 28) << 28)| (extractBits(instruction, 25, 0) << 2);  // assumes PC += 4 just happened
+        uint32_t jumpAddr = (((PC) >> 28) << 28)| (extractBits(instruction, 25, 0) << 2);  // assumes PC += 4 just happened
         
         std::string result;
          ss << std::hex << std::uppercase << jumpAddr;
