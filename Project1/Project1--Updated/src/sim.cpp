@@ -129,17 +129,10 @@ int main(int argc, char** argv) {
         // fetch current instruction
         uint32_t instruction;
         myMem->getMemValue(PC, instruction, WORD_SIZE);
-
-        std::stringstream ss;
-        ss << std::hex << std::uppercase << instruction;
-        std::string instruction_hex = ss.str();
-
-        std::cout << "The hex representation of the instruction is: " << instruction_hex << std::endl;
-
-
         // increment PC & reset zero register
         if (encounteredBranch == true){
-            PC += savedPC;
+            PC = savedPC;
+            encounteredBranch = false;
         }
         else {
             PC += 4;
@@ -156,14 +149,6 @@ int main(int argc, char** argv) {
         // TODO: parse instruction by completing function calls to extractBits()
         // and set operands accordingly
         uint32_t opcode = extractBits(instruction, 31 , 26);
-       // std::string opcode_r = uint32ToString(opcode);
-
-       // std::stringstream ss;
-        ss << std::hex << std::uppercase << opcode;
-        std::string opcode_hex = ss.str();
-
-        std::cout << "The hex representation of the opcode is: " << opcode_hex << std::endl;
-
         uint32_t rs = extractBits(instruction, 25, 21);
         uint32_t rt = extractBits(instruction, 20 , 16);
         uint32_t rd = extractBits(instruction, 15, 11 );
@@ -186,31 +171,11 @@ int main(int argc, char** argv) {
 
         int32_t branchAddr = (signExt(extractBits(instruction, 15, 0)) << 2);
         uint32_t jumpAddr = (((PC) >> 28) << 28)| (extractBits(instruction, 25, 0) << 2);  // assumes PC += 4 just happened
-        
-        std::string a;
-        a = uint32ToString((((PC) >> 28) << 28));
-        std::cout << "PC shift 28 equals:" << a << std::endl;
-         a = uint32ToString((extractBits(instruction, 25, 0) << 2));
-        std::cout << "Extract 26 bits from instr:" << a << std::endl;
-        a = uint32ToString((extractBits(instruction, 25, 0)));
-        std::cout << "Extract 26 bits from instr without shift:" << a << std::endl;
-
-
-        std::string result;
-         ss << std::hex << std::uppercase << jumpAddr;
-        std::string jumpAddr_hex = ss.str();
-
-        result = uint32ToString(jumpAddr);
-        std::cout << "JumpAddr is : " << result << std::endl;
         switch(opcode) {
             case OP_ZERO: // R-type instruction 
                 switch(funct) {
                     case FUN_ADD:                         
                     regData.registers[rd] = regData.registers[rs] + regData.registers[rt];
-                    
-                    result = uint32ToString(regData.registers[rd]);
-                    std::cout << "The result of the FUN_ADD is: " << result << std::endl;
-                  //  exit(0);
                     break;
                     
                     case FUN_ADDU:
@@ -219,21 +184,14 @@ int main(int argc, char** argv) {
 
                     case FUN_AND: 
                     regData.registers[rd] = regData.registers[rs] & regData.registers[rt]; 
-                    result = uint32ToString(regData.registers[rd]);
-                    std::cout << "The result of the FUN_AND is: " << result << std::endl;
-
                     break;
 
                     case FUN_JR: 
                     PC = regData.registers[rs];
-                    result = uint32ToString(regData.registers[rs]);
-                    std::cout << "The result of the FUN_JR is: " << result << std::endl;
                     break;
 
                     case FUN_NOR: 
                     regData.registers[rd] = ~(regData.registers[rs] | regData.registers[rt]);
-                    result = uint32ToString(regData.registers[rd]);
-                    std::cout << "The result of the FUN_NOR is: " << result << std::endl;
                     break;
 
                     case FUN_OR: 
@@ -250,10 +208,6 @@ int main(int argc, char** argv) {
 
                     case FUN_SLL: 
                     regData.registers[rd] = regData.registers[rt] << shamt;
-                    result = uint32ToString(regData.registers[rd]);
-                    std::cout << "The result of the FUN_SLL is: " << result << std::endl;
-                    result = uint32ToString(shamt);
-                    std::cout << "The result of shamt is: " << result << std::endl;
                     break;
 
                     case FUN_SRL: 
@@ -280,8 +234,6 @@ int main(int argc, char** argv) {
                 
             case OP_ADDIU: 
                 regData.registers[rt] = (u_int32_t) regData.registers[rs] + (u_int32_t) signExtImm;
-                result = uint32ToString(regData.registers[rt]);
-                std::cout << "The string representation of the ADDIU is: " << result << std::endl;
                 break;
 
             case OP_ANDI: 
@@ -291,33 +243,29 @@ int main(int argc, char** argv) {
             case OP_BEQ: 
                 if (regData.registers[rs] == regData.registers[rt]) {
                     encounteredBranch = true;
-                    savedPC = PC + branchAddr;
+                   savedPC = PC + branchAddr;
                 }
+               // exit(0);
                 break;
                 
             case OP_BNE:
                  if (regData.registers[rs] != regData.registers[rt]) {
                     encounteredBranch = true;
-                    savedPC = PC + branchAddr;;
+                    savedPC = PC + branchAddr;
                 }
                 break;
                 
             case OP_BLEZ: 
                 if (regData.registers[rs] <= 0){
                 encounteredBranch = true;
-                    savedPC = PC + branchAddr;;
+                    savedPC = PC + branchAddr;
             }
             break;
                 
             case OP_BGTZ: 
                 if (regData.registers[rs] > 0){
-                result = uint32ToString(PC);
-                std::cout << "The string representation of the PC is: " << result << std::endl;
                 encounteredBranch = true;
-                    savedPC = PC + branchAddr;
-                result = uint32ToString(branchAddr);
-                std::cout << "The string representation of the branchAddr is: " << result << std::endl;
-                
+                    savedPC = PC + branchAddr;   
             }
             break;
                 
@@ -328,13 +276,6 @@ int main(int argc, char** argv) {
             case OP_JAL: 
                 regData.registers[31] = PC;
                 PC = jumpAddr;
-
-                result = uint32ToString(regData.registers[31]);
-                    std::cout << "The result of the JAL 31 reg is: " << result << std::endl;
-                result = uint32ToString(PC);
-                    std::cout << "The result of the JAL PC is: " << result << std::endl;
-
-        std::cout << "The hex representation of the jumpAddr_hex is: " << jumpAddr_hex << std::endl;
                 break;
 
             // Ask About Load and Store   
@@ -348,10 +289,7 @@ int main(int argc, char** argv) {
                 regData.registers[rt] = immediate << 16;
             break;
             case OP_LW: 
-            //Issue that one of the LW might not be updating as we go past 1 loop
                 myMem->getMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], WORD_SIZE);
-                result = uint32ToString(regData.registers[rt]);
-                std::cout << "whats in mem of the LW is: " << result << std::endl;
             break;
             case OP_ORI: 
                     regData.registers[rt] = regData.registers[rs] | zeroExtImm;
@@ -371,16 +309,6 @@ int main(int argc, char** argv) {
             case OP_SW: 
                 u_int32_t result1;
                 myMem->setMemValue(regData.registers[rs] + signExtImm, regData.registers[rt], WORD_SIZE);
-                result = uint32ToString(regData.registers[rs] + signExtImm);
-                std::cout << "The memAddr of the SW is: " << result << std::endl;
-
-                result = uint32ToString(regData.registers[rt]);
-                std::cout << "The rt of the SW is: " << result << std::endl;
-
-                myMem->getMemValue(regData.registers[rt], result1, WORD_SIZE);
-                result = uint32ToString(result1);
-                std::cout << "The result of the SW is: " << result1 << std::endl;
-               // exit(0);
             break;
 
             default:
